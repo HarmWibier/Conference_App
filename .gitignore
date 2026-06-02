@@ -13,3 +13,4 @@ Conference App/chrome
 **/chrome/
 *.dbg
 *.exe
+Thumbs.db
