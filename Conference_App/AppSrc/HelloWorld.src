@@ -1,0 +1,9 @@
+﻿Use ui
+
+Procedure ShowHello
+    Integer iKey
+    Showln "Hello world!"
+    Inkey iKey
+End_Procedure
+
+Send ShowHello

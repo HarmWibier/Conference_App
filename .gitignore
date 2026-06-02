@@ -1,0 +1,15 @@
+**/AppHtml/CssThemes/Df_Material
+**/AppHtml/WasmRT
+**/AppHtml/WebUI
+**/AppHtml/*.flx
+**/AppHtml/*.dbg
+**/DfPkg
+**/IdeSrc
+**/AppSrc/*.dep
+**/AppSrc/*.err
+**/AppSrc/*.prn
+Conference App/chrome
+.DS_Store
+**/chrome/
+*.dbg
+*.exe
