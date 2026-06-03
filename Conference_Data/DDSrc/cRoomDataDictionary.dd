@@ -1,0 +1,42 @@
+﻿Use DataDict.pkg
+
+Open Room
+Open DFLastID
+Open Presentation
+Open Settings
+
+Class cRoomDataDictionary is a DataDictionary
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set Main_File to Room.File_Number
+
+        Set Add_Client_File to Presentation.File_Number
+
+        Set Add_System_File to DFLastID.File_Number DD_Lock_On_All
+        Set Add_System_File to Settings.File_Number DD_Lock_on_All
+
+        Set Foreign_Field_Option DD_KEYFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_KEYFIELD DD_FINDREQ to True
+        Set Foreign_Field_Option DD_INDEXFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_DEFAULT DD_DISPLAYONLY to True
+
+        Set Field_Auto_Increment Field Room.RoomId to File_Field DFLastID.RoomId
+        Set Field_Option Field Room.RoomId DD_NOPUT to True
+        Set Key_Field_State Field Room.RoomId to True
+    End_Procedure
+    
+    Procedure OnSaveRecord
+        Forward Send OnSaveRecord
+        
+        Increment Settings.DataVersion
+        SaveRecord Settings
+    End_Procedure
+    
+    Procedure Deleting
+        Forward Send Deleting
+        
+        Increment Settings.DataVersion
+        SaveRecord Settings
+    End_Procedure
+End_Class

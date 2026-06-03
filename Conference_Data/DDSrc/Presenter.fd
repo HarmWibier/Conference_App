@@ -1,0 +1,7 @@
+#REPLACE FILE1 Presenter
+#REPLACE Presenter.Recnum |FN1,0
+#REPLACE Presenter.PresenterId |FN1,1
+#REPLACE Presenter.FirstName |FS1,2
+#REPLACE Presenter.LastName |FS1,3
+#REPLACE Presenter.Company |FS1,4
+#REPLACE Presenter.Bio |FS1,5

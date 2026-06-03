@@ -1,0 +1,10 @@
+PresentationId
+RoomId
+PresenterId
+Title
+Description
+Date
+StartTime
+EndTime
+Level
+MaxAttendees

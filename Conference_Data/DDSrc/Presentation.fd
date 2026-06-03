@@ -1,0 +1,12 @@
+#REPLACE FILE3 Presentation
+#REPLACE Presentation.Recnum |FN3,0
+#REPLACE Presentation.PresentationId |FN3,1
+#REPLACE Presentation.RoomId |FN3,2
+#REPLACE Presentation.PresenterId |FN3,3
+#REPLACE Presentation.Title |FS3,4
+#REPLACE Presentation.Description |FS3,5
+#REPLACE Presentation.Date |FD3,6
+#REPLACE Presentation.StartTime |FS3,7
+#REPLACE Presentation.EndTime |FS3,8
+#REPLACE Presentation.Level |FS3,9
+#REPLACE Presentation.MaxAttendees |FN3,10

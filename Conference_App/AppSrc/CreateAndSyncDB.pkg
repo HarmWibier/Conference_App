@@ -1,4 +1,6 @@
 ﻿Use System\FileSystem.pkg
+Use System\Http.pkg
+Use System\Json.pkg
 Use PresenterDataDictionary.pkg
 
 Object oCreateAndSyncDB is a cObject
@@ -14,4 +16,33 @@ Object oCreateAndSyncDB is a cObject
             Send CreateDatabase of oPresenterDD True True True
         End
     End_Procedure
+    
+    Object oHttpReq is a cHttpClient
+        Set psEndpoint to "https://abs01.daelab.net/"
+    End_Object
+    
+    Procedure SynchronizeData
+        Presenter[] aPresenters
+        Integer eStatus iItem iItemTo
+        
+        Get HttpGet of oHttpReq "/ConferenceData/API/v1/Presenter" to eStatus
+        If (eStatus <> 200) Begin
+            Send UserError (SFormat("Could not connect to server (HTTP status %1)", eStatus))
+            Procedure_Return
+        End
+        Get HttpResponseToDataType of oHttpReq False "" to aPresenters
+        
+        Begin_Transaction
+            ZeroFile oPresenterDD
+            
+            Move (SizeOfArray(aPresenters) - 1) to iItemTo
+            For iItem from 0 to iItemTo
+                Clear oPresenterDD
+                Send UpdateAllFields of oPresenterDD aPresenters[iItem] 
+                SaveRecord oPresenterDD
+            Loop
+        End_Transaction
+        
+    End_Procedure
+    
 End_Object

@@ -1,0 +1,36 @@
+﻿Use WebApi\cRestDataset.pkg
+Use cRoomDataDictionary.dd
+Use WebApi\cRestField.pkg
+
+Object oRoomDataset is a cRestDataset
+    Object oRoom_DD is a cRoomDataDictionary
+    End_Object
+
+    Set Main_DD to oRoom_DD
+    Set Server to oRoom_DD
+
+    Set psPath to "Room"
+
+    Object oRoom_RoomId is a cRestField
+        Entry_Item Room.RoomId
+        Set psFieldName to "RoomId" // Casing must match definition in client app
+    End_Object
+
+    Object oRoom_Name is a cRestField
+        Entry_Item Room.Name
+    End_Object
+
+    Object oRoom_Description is a cRestField
+        Entry_Item Room.Description
+    End_Object
+
+    Object oRoom_Directions is a cRestField
+        Entry_Item Room.Directions
+    End_Object
+
+    Object oRoom_Capacity is a cRestField
+        Entry_Item Room.Capacity
+    End_Object
+    
+    
+End_Object

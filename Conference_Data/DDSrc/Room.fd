@@ -1,0 +1,7 @@
+#REPLACE FILE2 Room
+#REPLACE Room.Recnum |FN2,0
+#REPLACE Room.RoomId |FN2,1
+#REPLACE Room.Name |FS2,2
+#REPLACE Room.Description |FS2,3
+#REPLACE Room.Directions |FS2,4
+#REPLACE Room.Capacity |FN2,5

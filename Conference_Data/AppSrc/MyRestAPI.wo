@@ -1,0 +1,12 @@
+﻿Use cWebHttpHandler.pkg
+Use WebApi\cWebApi.pkg
+
+//  With the cWebHttpHandler you handle complete HTTP requests.
+Object oMyRestAPI is a cWebApi
+    
+    
+    //  The psPath property determines the path in the URL for which requests will be handled.
+    Set psPath to "API/V1"
+    //  Use psVerbs to filter based on the HTTP Verbs. 
+    
+End_Object

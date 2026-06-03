@@ -1,0 +1,17 @@
+{
+    "dependencies": {
+        "DataFlex-dev/Web API Framework": {
+            "ref": "1.0.0"
+        },
+        "DataFlex-dev/Web UI": {
+            "ref": "1.0.44"
+        },
+        "DataFlex-dev/Web UI Material Theme": {
+            "ref": "1.0.3"
+        },
+        "DataFlex-dev/Web UI Server": {
+            "ref": "1.0.44"
+        }
+    },
+    "lockVersion": "1.0.0"
+}

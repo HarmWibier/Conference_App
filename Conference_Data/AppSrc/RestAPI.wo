@@ -1,0 +1,13 @@
+﻿Use WebApi\cWebApi.pkg
+
+Object oMyRestAPI is a cWebApi
+    Set psPath to "API/v1"
+    
+    Send AddIterator (RefClass(cJSONIterator))"application/json"
+    Send AddIterator (RefClass(cXMLIterator)) "application/xml"
+    
+    Use RoomDataset.pkg
+    Use PresenterDataset.pkg
+    Use PresentationDataset.pkg
+    Use VersionEndpoint.pkg
+End_Object

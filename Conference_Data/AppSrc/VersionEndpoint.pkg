@@ -1,0 +1,17 @@
+﻿Open Settings
+
+Object oVersionEndpoint is a cWebApiCustomEndpoint
+    Set psPath to "Version"
+    Set pbAllowCreate to False
+    Set pbAllowDelete to False
+    Set pbAllowEdit to False
+    Set pbReadOnly to True
+
+    Procedure OnHttpGet tWebApiCallContext  ByRef webapicallcontext
+        Send AddHttpResponseHeader "Content-Type" "application/json"
+        
+        
+        Find GE Settings.Recnum
+        Send OutputString (SFormat('{ "Version":%1 }', Settings.DataVersion))
+    End_Procedure
+End_Object

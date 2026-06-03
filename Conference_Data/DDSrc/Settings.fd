@@ -1,0 +1,3 @@
+#REPLACE FILE4 Settings
+#REPLACE Settings.Recnum |FN4,0
+#REPLACE Settings.DataVersion |FN4,1

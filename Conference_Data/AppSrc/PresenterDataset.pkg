@@ -1,0 +1,37 @@
+﻿Use WebApi\cRestDataset.pkg
+Use WebApi\cRestField.pkg
+Use cPresenterDataDictionary.dd
+
+Object oPresenterDataset is a cRestDataset
+    Object oPresenter_DD is a cPresenterDataDictionary
+    End_Object
+
+    Set Main_DD to oPresenter_DD
+    Set Server to oPresenter_DD
+
+    Set psPath to "Presenter"
+
+
+    Object oPresenter_PresenterId is a cRestField
+        Entry_Item Presenter.PresenterId
+        Set psFieldName to "PresenterId"
+    End_Object
+
+    Object oPresenter_FirstName is a cRestField
+        Entry_Item Presenter.FirstName
+        Set psFieldName to "FirstName"
+    End_Object
+
+    Object oPresenter_LastName is a cRestField
+        Entry_Item Presenter.LastName
+        Set psFieldName to "LastName"
+    End_Object
+
+    Object oPresenter_Company is a cRestField
+        Entry_Item Presenter.Company
+    End_Object
+
+    Object oPresenter_Bio is a cRestField
+        Entry_Item Presenter.Bio
+    End_Object
+End_Object

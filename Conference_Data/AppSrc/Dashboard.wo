@@ -1,15 +1,15 @@
-﻿Use WebUI\cWebView.pkg
-Use WebUI\cWebPanel.pkg
-Use WebUI\cWebForm.pkg
-Use WebUI\cWebButton.pkg
-Use WebUI\cWebGroup.pkg
-Use WebUI\cWebSpacer.pkg
-Use WebUI\cWebHtmlBox.pkg
-Use WebUI\cWebMenuGroup.pkg
-Use WebUI\cWebMenuItem.pkg
-Use WebUI\cWebLabel.pkg
-Use WebUI\cWebList.pkg
-Use WebUI\cWebColumn.pkg
+﻿Use cWebView.pkg
+Use cWebPanel.pkg
+Use cWebForm.pkg
+Use cWebButton.pkg
+Use cWebGroup.pkg
+Use cWebSpacer.pkg
+Use cWebHtmlBox.pkg
+Use cWebMenuGroup.pkg
+Use cWebMenuItem.pkg
+Use cWebLabel.pkg
+Use cWebList.pkg
+Use cWebColumn.pkg
 
 Object oDashboard is a cWebView
 
@@ -29,10 +29,12 @@ Object oDashboard is a cWebView
 
     Set piMaxWidth to 1024
     
-    Set psCaption to "Dashboard"
+    Set psCaption to "Conference BackOffice"
     Set peViewType to vtUndefined
     Set pbShowCaption to False
     Set psCSSClass to "Dashboard"
+    Set psStateViewName to "Dashboard"
+    Set peStateMode to vsmOff
     
     Object oWebMainPanel is a cWebPanel
         Set piColumnCount to 24
@@ -51,14 +53,16 @@ Object oDashboard is a cWebView
             
             Set psCSSClass to "TilesGroup"
     
-            Object oSyncTile is a cWebHtmlBox
+            Object oWelcomeTile is a cWebHtmlBox
                 Set piColumnSpan to 6
                 Set psCSSClass to "Tile Light"
-                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Synchronize</div><div class="Tile_Subtitle"></div></div>'
-                Set pbServerOnClick to True
+                Set psHtml to '<div Class="WebCon_Sizer"><div class="Tile_Title">Welcome</div><div Class="Tile_Subtitle">--</div></div>'
     
-                Procedure OnClick String sId String sParam
-                    Send SynchronizeData of oCreateAndSyncDB
+                Procedure OnLoad
+                    Send UpdateHTML ('<div class="WebCon_Sizer">' + ;
+                                     '<div class="Tile_Title">Welcome</div>' +;
+                                     '<div class="Tile_Subtitle">' - htmlEncode(psUserName(SessionManager(Self))) - '</div>' +;
+                                     '</div>')
                 End_Procedure
                 
             End_Object
@@ -68,28 +72,26 @@ Object oDashboard is a cWebView
                 Set piColumnSpan to 6
                 Set piColumnIndex to 6
                 Set psCSSClass to "Tile LightAlternate"
-                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Presenters</div><div class="Tile_Subtitle"></div></div>'
-                                
-                WebRegisterPath ntNavigateForwardCustom oSelectPresenter
-                
+                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Rooms</div><div class="Tile_Subtitle"></div></div>'
+
+                WebRegisterPath ntNavigateForward oSelectRoom
+
                 Procedure OnClick String sId String sParam
                     Send NavigatePath
                 End_Procedure
-                
             End_Object
     
             Object oTile3 is a cWebHtmlBox
                 Set pbServerOnClick to True
                 Set piColumnSpan to 6
                 Set psCSSClass to "Tile Dark"
-                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Tile 3</div><div class="Tile_Subtitle"></div></div>'
-    
-                // WebRegisterPath ntNavigateForwardCustom oYourViewName
-                
+                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Presenters</div><div class="Tile_Subtitle"></div></div>'
+
+                WebRegisterPath ntNavigateForward oSelectPresenter
+
                 Procedure OnClick String sId String sParam
                     Send NavigatePath
                 End_Procedure
-                
             End_Object
     
             Object oTile4 is a cWebHtmlBox
@@ -97,22 +99,23 @@ Object oDashboard is a cWebView
                 Set piColumnSpan to 6
                 Set piColumnIndex to 6
                 Set psCSSClass to "Tile DarkAlternate"
-                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Tile 4</div><div class="Tile_Subtitle"></div></div>'
-            
-                // WebRegisterPath ntNavigateForwardCustom oYourViewName
-                
+                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Presentations</div><div class="Tile_Subtitle"></div></div>'
+
+                WebRegisterPath ntNavigateForward oSelectPresentation
+
                 Procedure OnClick String sId String sParam
                     Send NavigatePath
                 End_Procedure
-                
             End_Object
         End_Object
-    
     End_Object
     
     Procedure OnBeforeShow
         // Each time this view is shown we will update the appropriate information.
     End_Procedure
 
-    Delegate Set phoDefaultView to Self
+    Procedure OnNavigateForward tWebNavigateData NavigateData Handle hoInvokingView Handle hoInvokingObject
+        Send SetBreadcrumbCaption "Dashboard"
+    End_Procedure
+
 End_Object

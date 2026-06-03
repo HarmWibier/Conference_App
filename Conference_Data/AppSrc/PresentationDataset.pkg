@@ -1,0 +1,84 @@
+﻿Use WebApi\cRestDataset.pkg
+Use WebApi\cRestField.pkg
+Use cRoomDataDictionary.dd
+Use cPresenterDataDictionary.dd
+Use cPresentationDataDictionary.dd
+
+Object oPresentationDataset is a cRestDataset
+    Object oPresenter_DD is a cPresenterDataDictionary
+    End_Object
+
+    Object oRoom_DD is a cRoomDataDictionary
+    End_Object
+
+    Object oPresentation_DD is a cPresentationDataDictionary
+        Set DDO_Server to oPresenter_DD
+        Set DDO_Server to oRoom_DD
+    End_Object
+
+    Set Main_DD to oPresentation_DD
+    Set Server to oPresentation_DD
+    
+    Set psPath to "Presentation"
+
+    Object oPresentation_PresentationId is a cRestField
+        Entry_Item Presentation.PresentationId
+        Set psFieldName to "PresentationId"
+    End_Object
+
+    Object oPresentation_RoomId is a cRestField
+        Entry_Item Room.RoomId
+        Set psFieldName to "RoomId"
+    End_Object
+
+    Object oPresentation_PresenterId is a cRestField
+        Entry_Item Presenter.PresenterId
+        Set psFieldName to "PresenterId"
+    End_Object
+
+    Object oPresentation_Title is a cRestField
+        Entry_Item Presentation.Title
+    End_Object
+
+    Object oPresentation_Description is a cRestField
+        Entry_Item Presentation.Description
+    End_Object
+
+    Object oPresentation_Date is a cRestField
+//        Entry_Item Presentation.Date
+        Set psFieldName to "Date"
+
+        Procedure OnSetCalculatedValue String  ByRef sValue
+            Date dVal
+            Integer eDateFormat
+            
+            Move Presentation.Date to dVal
+            
+            Get_Attribute DF_DATE_FORMAT to eDateFormat
+            Set_Attribute DF_DATE_FORMAT to DF_DATE_MILITARY
+            
+            Move dVal to sValue
+            
+            Set_Attribute DF_DATE_FORMAT to eDateFormat
+        End_Procedure
+    End_Object
+
+    Object oPresentation_StartTime is a cRestField
+        Entry_Item Presentation.StartTime
+        Set psFieldName to "StartTime"
+    End_Object
+
+    Object oPresentation_EndTime is a cRestField
+        Entry_Item Presentation.EndTime
+        Set psFieldName to "EndTime"
+    End_Object
+
+    Object oPresentation_Level is a cRestField
+        Entry_Item Presentation.Level
+    End_Object
+
+    Object oPresentation_MaxAttendees is a cRestField
+        Entry_Item Presentation.MaxAttendees
+        Set psFieldName to "MaxAttendees"
+    End_Object
+End_Object

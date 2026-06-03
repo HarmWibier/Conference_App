@@ -1,0 +1,63 @@
+﻿Use DataDict.pkg
+
+Open Presentation
+Open Room
+Open Presenter
+Open DFLastID
+Open Settings
+
+Object oLevelVal is a ValidationTable
+    Procedure Fill_List
+        Forward Send Fill_List
+        Send Add_Table_Value "Novice"
+        Send Add_Table_Value "Apprentice"
+        Send Add_Table_Value "Journeyman"
+        Send Add_Table_Value "Expert"
+        Send Add_Table_Value "Master"
+    End_Procedure
+End_Object
+
+Class cPresentationDataDictionary is a DataDictionary
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set Main_File to Presentation.File_Number
+
+        Set Add_Server_File to Room.File_Number
+        Set Add_Server_File to Presenter.File_Number
+
+        Set Add_System_File to DFLastID.File_Number DD_Lock_On_All
+        Set Add_System_File to Settings.File_Number DD_Lock_On_All
+
+        Set Foreign_Field_Option DD_KEYFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_KEYFIELD DD_FINDREQ to True
+        Set Foreign_Field_Option DD_INDEXFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_DEFAULT DD_DISPLAYONLY to True
+
+        Set Field_Auto_Increment Field Presentation.PresentationId to File_Field DFLastID.PresentationId
+        Set Field_Option Field Presentation.PresentationId DD_NOPUT to True
+        Set Key_Field_State Field Presentation.PresentationId to True
+
+        Set Field_Value_Table Field Presentation.Level to oLevelVal
+    End_Procedure
+    
+    Procedure OnSaveRecord
+        Forward Send OnSaveRecord
+        
+        Increment Settings.DataVersion
+        SaveRecord Settings
+    End_Procedure
+    
+    Procedure Deleting
+        Forward Send Deleting
+        
+        Increment Settings.DataVersion
+        SaveRecord Settings
+    End_Procedure
+    
+    Procedure Field_Defaults
+        Forward Send Field_Defaults
+        Set Field_Changed_Value Field Presentation.Level to "Apprentice"
+    End_Procedure
+
+End_Class
