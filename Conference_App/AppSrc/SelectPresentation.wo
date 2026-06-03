@@ -22,6 +22,17 @@ Object oSelectPresentation is a cWebView
     Object oPresentationDD is a cPresentationDataDictionary
         Set DDO_Server to oPresenterDD
         Set DDO_Server to oRoomDD
+        
+        Property String psFilter ""
+        Procedure OnConstrain
+            String sFilter
+            
+            Get psFilter to sFilter
+            
+            If (sFilter <> "") Begin
+                Constrain Self.Title contains sFilter
+            End
+        End_Procedure
     End_Object
 
     Set Main_DD to oPresentationDD
@@ -36,6 +47,26 @@ Object oSelectPresentation is a cWebView
     Set piColumnCount to 6
     Set pbShowCaption to False
     Set psStateViewName to "Presentations"
+
+    Object oSearchFrm is a cWebForm
+        Set piColumnSpan to 0
+        Set psLabel to "form"
+        Set pbServerOnInput to True
+        Set pbShowLabel to False
+        Set psPlaceHolder to "Type to search..."
+
+        Procedure OnInput Boolean bIsInsert String sInputType
+            String sVal
+            
+            WebGet psValue to sVal
+            Set psFilter of oPresentationDD to sVal
+            
+            Send Rebuild_Constraints of oPresentationDD
+            Send FindDDRecordInBuffer of oList
+            
+            WebSet psHighlight of oPresentationDD_Title to sVal
+        End_Procedure
+    End_Object
 
     WebSetResponsive piColumnCount rmTabletPortrait to 3
 
