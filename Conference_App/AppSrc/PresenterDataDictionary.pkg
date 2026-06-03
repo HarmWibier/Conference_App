@@ -1,0 +1,29 @@
+﻿Use Db\cDataDictionary.pkg
+
+{ Connection=conf_data}
+Entity Presenter
+    { PrimaryKey=True AutoIncrement=True }
+    Integer PresenterId
+    String FirstName
+    String LastName
+    String Company
+    String Bio
+        
+    Add_Index PresenterId ASC
+    Add_Index FirstName ASC LastName ASC
+    Add_Index LastName ASC FirstName ASC
+End_Entity
+
+{ Entity=Presenter }
+Class cPresenterDataDictionary is a cDataDictionary
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        
+        Set phEntity to (RefEntity(Presenter))
+        
+        Set Field_Option (RefTable(Self.FirstName)) DD_Required to True
+        Set Field_Option (RefTable(Self.LastName)) DD_Required to True
+        
+    End_Procedure
+End_Class
+

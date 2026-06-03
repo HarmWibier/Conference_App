@@ -1,0 +1,17 @@
+﻿Use System\FileSystem.pkg
+Use PresenterDataDictionary.pkg
+
+Object oCreateAndSyncDB is a cObject
+    Object oPresenterDD is a cPresenterDataDictionary
+    End_Object
+    
+    Procedure InitializeDB
+        Boolean bExists
+        
+        File_Exist C_SQLiteDb bExists
+        
+        If (not(bExists)) Begin
+            Send CreateDatabase of oPresenterDD True True True
+        End
+    End_Procedure
+End_Object

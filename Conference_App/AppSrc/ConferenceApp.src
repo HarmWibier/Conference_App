@@ -58,6 +58,17 @@ Object oWebApp is a cWebClientApp
                         End_Procedure
                     End_Object
 
+                    Object oSelectPresenterItem1 is a cWebMenuItem
+                        Set psCaption to "SelectPresenter"
+
+                        WebRegisterPath ntNavigateBegin oSelectPresenter
+
+                        Procedure OnClick
+                            Forward Send OnClick
+                                Send NavigatePath
+                        End_Procedure
+                    End_Object
+
                 End_Object
 
             End_Object  
@@ -126,7 +137,12 @@ Object oWebApp is a cWebClientApp
         End_Object
 
     End_Object  
-
+    
+    Use CreateAndSyncDB.pkg
+    Send InitializeDB of oCreateAndSyncDB
+    
     Use Dashboard.wo
+    Use ZoomPresenter.wo
+    Use SelectPresenter.wo
 End_Object
 
