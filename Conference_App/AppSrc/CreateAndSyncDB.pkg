@@ -1,48 +1,163 @@
-﻿Use System\FileSystem.pkg
+﻿Use RoomDataDictionary.pkg
+Use PresentationDataDictionary.pkg
+Use PresenterDataDictionary.pkg
+Use SettingsDataDictionary.pkg
+Use System\FileSystem.pkg
 Use System\Http.pkg
 Use System\Json.pkg
-Use PresenterDataDictionary.pkg
 
 Object oCreateAndSyncDB is a cObject
+    Object oRoomDD is a cRoomDataDictionary
+    End_Object
+    
     Object oPresenterDD is a cPresenterDataDictionary
     End_Object
     
-    Procedure InitializeDB
+    Object oPresentationDD is a cPresentationDataDictionary
+        Set DDO_Server to oRoomDD
+        Set DDO_Server to oPresenterDD
+    End_Object
+    
+    Object oSettingsDD is a cSettingsDataDictionary
+    End_Object
+    
+    Property Integer pbSynchronized False
+    
+    
+    Procedure InitializeDB Boolean bForceRecreate
         Boolean bExists
-        
+       
         File_Exist C_SQLiteDb bExists
-        
-        If (not(bExists)) Begin
-            Send CreateDatabase of oPresenterDD True True True
+       
+        //  Note that calling ExistsInDb will also initialize the connection and open de Sqlite datatabase file
+        Get ExistsInDb of oPresentationDD True True to bExists
+        If (bForceRecreate or not(bExists)) Begin
+            Send CreateDatabase of oPresentationDD True True True 
+            Send CreateDatabase of oSettingsDD False False True
         End
     End_Procedure
     
     Object oHttpReq is a cHttpClient
-        Set psEndpoint to "https://abs01.daelab.net/"
+        Set psEndpoint to C_API_Endpoint
     End_Object
     
-    Procedure SynchronizeData
+    Procedure SynchronizeData Boolean bForce
+        Integer iLocalDataVersion iRemoteDataVersion iItem iItemTo
+        HttpStatus eStatus
+        Room[] aRooms
         Presenter[] aPresenters
-        Integer eStatus iItem iItemTo
+        Presentation[] aPresentations
+        Boolean bErr
         
-        Get HttpGet of oHttpReq "/ConferenceData/API/v1/Presenter" to eStatus
+        Get LoadSetting of oSettingsDD "DataVersion" "0" to iLocalDataVersion
+        
+        Get HttpGet of oHttpReq (C_API_Path + "Version") to eStatus
         If (eStatus <> 200) Begin
             Send UserError (SFormat("Could not connect to server (HTTP status %1)", eStatus))
             Procedure_Return
         End
-        Get HttpResponseToDataType of oHttpReq False "" to aPresenters
-        
-        Begin_Transaction
-            ZeroFile oPresenterDD
             
-            Move (SizeOfArray(aPresenters) - 1) to iItemTo
-            For iItem from 0 to iItemTo
-                Clear oPresenterDD
-                Send UpdateAllFields of oPresenterDD aPresenters[iItem] 
-                SaveRecord oPresenterDD
-            Loop
-        End_Transaction
+        Get HttpResponseToDataType of oHttpReq True "Version" to iRemoteDataVersion
         
+        If (iLocalDataVersion <> iRemoteDataVersion or bForce) Begin
+            //  We need to sync
+            
+            Push_locale
+            Set_Attribute DF_LOCALE to DF_LOCALE_ISO8601 
+            
+            //  First fetch them all
+            Get HttpGet of oHttpReq (C_API_Path + "Room") to eStatus
+            If (eStatus <> 200) Begin
+                Send UserError (SFormat("Could not connect to server (HTTP status %1)", eStatus))
+                Pop_locale
+                Procedure_Return
+            End
+            Get HttpResponseToDataType of oHttpReq False "" to aRooms
+                
+            Get HttpGet of oHttpReq (C_API_Path + "Presenter") to eStatus
+            If (eStatus <> 200) Begin
+                Send UserError (SFormat("Could not connect to server (HTTP status %1)", eStatus))
+                Pop_locale
+                Procedure_Return
+            End
+            Get HttpResponseToDataType of oHttpReq False "" to aPresenters
+            
+            Get HttpGet of oHttpReq (C_API_Path + "Presentation") to eStatus
+            If (eStatus <> 200) Begin
+                Send UserError (SFormat("Could not connect to server (HTTP status %1)", eStatus))
+                Pop_locale
+                Procedure_Return
+            End
+            Get HttpResponseToDataType of oHttpReq False "" to aPresentations
+            
+            Pop_locale
+            
+            Begin_Transaction
+                ZeroFile oRoomDD
+                Move (SizeOfArray(aRooms) - 1) to iItemTo
+                For iItem from 0 to iItemTo
+                    Clear oRoomDD
+                    Send UpdateAllFields of oRoomDD aRooms[iItem]
+                    Get Request_Validate of oRoomDD to bErr
+                    If (not(bErr)) Begin
+                        Send Request_Save of oRoomDD
+                    End
+                Loop
+                
+                ZeroFile oPresenterDD
+                Move (SizeOfArray(aPresenters) - 1) to iItemTo
+                For iItem from 0 to iItemTo
+                    Clear oPresenterDD
+                    Send UpdateAllFields of oPresenterDD aPresenters[iItem]
+                    Get Request_Validate of oPresenterDD to bErr
+                    If (not(bErr)) Begin
+                        Send Request_Save of oPresenterDD
+                    End
+                Loop
+                
+                ZeroFile oPresentationDD
+                Move (SizeOfArray(aPresentations) - 1) to iItemTo
+                For iItem from 0 to iItemTo
+                    Clear oPresentationDD
+                    
+                    Send UpdateAllFields of oPresentationDD aPresentations[iItem]
+                    If (oRoomDD.RoomId <> aPresentations[iItem].RoomId) Begin
+                        Move aPresentations[iItem].RoomId to oRoomDD.RoomId
+                        Find EQ oRoomDD.RoomId
+                        If (not(Found)) Begin
+                            Error DFERR_PROGRAM "Received invalid data from the server"
+                        End
+                    End
+                    
+                    If (oPresenterDD.PresenterId <> aPresentations[iItem].PresenterId) Begin
+                        Move aPresentations[iItem].PresenterId to oPresenterDD.PresenterId
+                        Find EQ oPresenterDD.PresenterId
+                        If (not(Found)) Begin
+                            Error DFERR_PROGRAM "Received invalid data from the server"
+                        End
+                    End
+                    
+                    Get Request_Validate of oPresentationDD to bErr
+                    If (not(bErr)) Begin
+                        Send Request_Save of oPresentationDD
+                    End
+                Loop
+                
+                Send StoreSetting of oSettingsDD "DataVersion" iRemoteDataVersion
+                Send StoreSetting of oSettingsDD "LastSync" (CurrentDateTime())
+            End_Transaction
+        End
+        
+        If (not(Err)) ;
+            Set pbSynchronized to True
     End_Procedure
     
+    Function LastSync Returns String
+        String sResult
+        Get LoadSetting of oSettingsDD "LastSync" "--" to sResult
+        Function_Return sResult
+    End_Function
+    
+    
 End_Object
+

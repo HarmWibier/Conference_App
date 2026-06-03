@@ -1,0 +1,26 @@
+﻿Use Db\cDataDictionary.pkg
+
+{ Connection=conf_data}
+Entity Room
+    { PrimaryKey=True AutoIncrement=True }
+    Integer RoomId
+    String Name
+    String Description
+    String Directions
+    Integer Capacity
+    
+    Add_Index RoomId ASC
+    Add_Index Name ASC
+End_Entity
+
+{ Entity=Room }
+Class cRoomDataDictionary is a cDataDictionary
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        
+        Set phEntity to (RefEntity(Room))
+        
+        Set Field_Option (RefTable(Self.Name)) DD_Required to True
+    End_Procedure
+End_Class
+

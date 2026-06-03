@@ -1,0 +1,44 @@
+﻿Use Db\cDataDictionary.pkg
+
+{ Connection=conf_data }
+Entity Settings
+    { PrimaryKey=True }
+    String Name
+    String Value
+    
+    Add_Index Name ASC
+End_Entity
+
+{ Entity=Settings }
+Class cSettingsDataDictionary is a cDataDictionary
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        
+        Set phEntity to (RefEntity(Settings))
+        
+        Set Field_Option (RefTable(Self.Name)) DD_Required to True
+    End_Procedure
+    
+    Function LoadSetting String sSetting String sDefault Returns String
+        Move sSetting to Self.Name
+        Send FindByField EQ (RefTable(Self.Name))
+        
+        If (Found) ;
+            Function_Return Self.Value
+        Else ;
+            Function_Return sDefault
+    End_Function
+    
+    Procedure StoreSetting String sSetting String sValue
+        Move sSetting to Self.Name
+        Send FindByField EQ (RefTable(Self.Name))
+        
+        If (not(Found)) Begin
+            Send Clear 
+            Move sSetting to Self.Name
+        End
+        
+        Move sValue to Self.Value
+        Send Request_Save
+    End_Procedure
+End_Class

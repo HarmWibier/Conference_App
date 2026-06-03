@@ -7,10 +7,14 @@ Use WebUI\cWebBreadcrumb.pkg
 Use WebUI\cWebActionBar.pkg
 Use WebUI\cWebMenuItem.pkg
 
+
 Use Db\cDbConnectionManager.pkg
 Use Db\cDbSqliteDriver.pkg
 
-Define C_SQLiteDb for "/dev/idbfs/MyAppData.db"
+Define C_SQLiteDb for "/dev/idbfs/ConferenceDataV10.db"
+Define C_API_Path for "/ConferenceData/API/v1/"
+//Define C_API_Endpoint for "" // Development on localhost
+Define C_API_Endpoint for "https://abs01.daelab.net/" // Live service
 
 Object oConnections is a cDbConnectionManager
     Object oSqliteConn is a cDbSqliteDriver
@@ -22,7 +26,7 @@ End_Object
 Object oWebApp is a cWebClientApp
     Set psTheme to "Df_Material"
     Set peAlignView to alignCenter
-    Set psApplicationTitle to "DataFlex WebAssembly App"
+    Set psApplicationTitle to "Conference App"
 
     // It is important to set this so that all views will default
     // to drill down style views.
@@ -44,13 +48,23 @@ Object oWebApp is a cWebClientApp
             Object oMenuButton is a cWebMenuButton
                 Set piMenuHeight to 500
 
+                Object oDashboard_itm is a cWebMenuItem
+                    Set psCaption to C_$Dashboard
+                    
+                    WebRegisterPath ntNavigateBegin oDashboard
+
+                    Procedure OnClick
+                        Send NavigatePath
+                    End_Procedure
+                End_Object
+
                 Object oViewMenu is a cWebMenuItem
                     Set psCaption to C_$View
 
-                    Object oDashboardItem1 is a cWebMenuItem
-                        Set psCaption to "Dashboard"
+                    Object oSelectRoomItem1 is a cWebMenuItem
+                        Set psCaption to "SelectRoom"
 
-                        WebRegisterPath ntNavigateBegin oDashboard
+                        WebRegisterPath ntNavigateBegin oSelectRoom
 
                         Procedure OnClick
                             Forward Send OnClick
@@ -58,8 +72,8 @@ Object oWebApp is a cWebClientApp
                         End_Procedure
                     End_Object
 
-                    Object oSelectPresenterItem1 is a cWebMenuItem
-                        Set psCaption to "SelectPresenter"
+                    Object oSelectPresenterItem is a cWebMenuItem
+                        Set psCaption to "Presenters"
 
                         WebRegisterPath ntNavigateBegin oSelectPresenter
 
@@ -69,6 +83,16 @@ Object oWebApp is a cWebClientApp
                         End_Procedure
                     End_Object
 
+                    Object oSelectPresentationItem is a cWebMenuItem
+                        Set psCaption to "Presentations"
+
+                        WebRegisterPath ntNavigateBegin oSelectPresentation
+
+                        Procedure OnClick
+                            Forward Send OnClick
+                                Send NavigatePath
+                        End_Procedure
+                    End_Object
                 End_Object
 
             End_Object  
@@ -137,12 +161,17 @@ Object oWebApp is a cWebClientApp
         End_Object
 
     End_Object  
-    
+
     Use CreateAndSyncDB.pkg
-    Send InitializeDB of oCreateAndSyncDB
-    
+    Send InitializeDB of oCreateAndSyncDB False
+
     Use Dashboard.wo
-    Use ZoomPresenter.wo
+    Use SelectRoom.wo
+    Use ZoomRoom.wo
     Use SelectPresenter.wo
+    Use ZoomPresenter.wo
+    Use SelectPresentation.wo
+    Use ZoomPresentation.wo
+    Set phoDefaultView to oDashboard
 End_Object
 

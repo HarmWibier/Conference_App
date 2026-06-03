@@ -33,6 +33,7 @@ Object oDashboard is a cWebView
     Set peViewType to vtUndefined
     Set pbShowCaption to False
     Set psCSSClass to "Dashboard"
+    Set pbServerOnShow to True
     
     Object oWebMainPanel is a cWebPanel
         Set piColumnCount to 24
@@ -51,16 +52,33 @@ Object oDashboard is a cWebView
             
             Set psCSSClass to "TilesGroup"
     
-            Object oSyncTile is a cWebHtmlBox
-                Set piColumnSpan to 6
-                Set psCSSClass to "Tile Light"
-                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Synchronize</div><div class="Tile_Subtitle"></div></div>'
+            Object oSyncDataTile is a cWebHtmlBox
                 Set pbServerOnClick to True
-    
-                Procedure OnClick String sId String sParam
-                    Send SynchronizeData of oCreateAndSyncDB
+                Set piColumnSpan to 6
+                Set psCSSClass to "Tile LightAlternate"
+                Set psHtml to '<div Class="WebCon_Sizer" data-ServerOnClick="doSync"><div class="Tile_Icon WebIcon_Refresh"></div><div Class="Tile_Subtitle">Initializing..</div></div>'
+                
+                Procedure DisplayStatus String sStatus
+                    Send UpdateHtml ( SFormat('<div Class="WebCon_Sizer" data-ServerOnClick="doSync"><div class="Tile_Icon WebIcon_Refresh"></div><div Class="Tile_Subtitle">%1</div></div>', sStatus))
+                    Send UpdateWebUI of (Host(Self))
                 End_Procedure
                 
+                Procedure DisplayLatest
+                    String sLastSync
+                    Get LastSync of oCreateAndSyncDB to sLastSync
+                    Send DisplayStatus sLastSync
+                End_Procedure
+                
+                Procedure DoSync Boolean bForce
+                    Send DisplayStatus of oSyncDataTile "Synchronizing.."
+                    Send SynchronizeData of oCreateAndSyncDB bForce
+                    Send DisplayLatest of oSyncDataTile
+
+                End_Procedure
+                
+                Procedure OnClick String sId String sParam
+                    Send DoSync True
+                End_Procedure
             End_Object
     
             Object oTile2 is a cWebHtmlBox
@@ -68,9 +86,9 @@ Object oDashboard is a cWebView
                 Set piColumnSpan to 6
                 Set piColumnIndex to 6
                 Set psCSSClass to "Tile LightAlternate"
-                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Presenters</div><div class="Tile_Subtitle"></div></div>'
+                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Rooms</div><div class="Tile_Subtitle"></div></div>'
                                 
-                WebRegisterPath ntNavigateForwardCustom oSelectPresenter
+                WebRegisterPath ntNavigateForwardCustom oSelectRoom
                 
                 Procedure OnClick String sId String sParam
                     Send NavigatePath
@@ -82,9 +100,9 @@ Object oDashboard is a cWebView
                 Set pbServerOnClick to True
                 Set piColumnSpan to 6
                 Set psCSSClass to "Tile Dark"
-                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Tile 3</div><div class="Tile_Subtitle"></div></div>'
+                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Presenters</div><div class="Tile_Subtitle"></div></div>'
     
-                // WebRegisterPath ntNavigateForwardCustom oYourViewName
+                WebRegisterPath ntNavigateForwardCustom oSelectPresenter
                 
                 Procedure OnClick String sId String sParam
                     Send NavigatePath
@@ -97,9 +115,9 @@ Object oDashboard is a cWebView
                 Set piColumnSpan to 6
                 Set piColumnIndex to 6
                 Set psCSSClass to "Tile DarkAlternate"
-                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Tile 4</div><div class="Tile_Subtitle"></div></div>'
+                Set psHtml to '<div class="WebCon_Sizer" data-ServerOnClick="openview"><div Class="Tile_Title">Presentations</div><div class="Tile_Subtitle"></div></div>'
             
-                // WebRegisterPath ntNavigateForwardCustom oYourViewName
+                WebRegisterPath ntNavigateForwardCustom oSelectPresentation
                 
                 Procedure OnClick String sId String sParam
                     Send NavigatePath
@@ -114,5 +132,13 @@ Object oDashboard is a cWebView
         // Each time this view is shown we will update the appropriate information.
     End_Procedure
 
-    Delegate Set phoDefaultView to Self
+    Procedure OnShow
+        If (not(pbSynchronized(oCreateAndSyncDB))) Begin
+            Send DoSync of oSyncDataTile
+        End
+        Else Begin
+            Send DisplayLatest of oSyncDataTile
+        End
+    End_Procedure
+
 End_Object

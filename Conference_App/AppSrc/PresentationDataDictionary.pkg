@@ -1,0 +1,42 @@
+﻿Use Db\cDataDictionary.pkg
+Use RoomDataDictionary.pkg
+Use PresenterDataDictionary.pkg
+
+{ Connection=conf_data }
+Entity Presentation
+    { PrimaryKey=True AutoIncrement=True }
+    Integer PresentationId
+    Integer RoomId
+    Integer PresenterId
+    String Title
+    String Description
+    Date Date
+    Time StartTime
+    Time EndTime
+    String Level
+    Integer MaxAttendees
+
+    Add_Index PresentationId ASC
+    Add_Index RoomId ASC PresentationId ASC
+    Add_Index Date ASC StartTime ASC Title ASC
+    Add_Index Title ASC
+    
+    Add_Relation RoomId to Room.RoomId
+    Add_Relation PresenterId to Presenter.PresenterId
+End_Entity
+
+{ Entity=Presentation }
+Class cPresentationDataDictionary is a cDataDictionary
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Set phEntity to (RefEntity(Presentation))
+
+        Set Field_Option (RefTable(Self.Title)) DD_Required to True
+        Set Field_Option (RefTable(Self.RoomId)) DD_Required to True
+        Set Field_Option (RefTable(Self.Date)) DD_Required to True
+        Set Field_Option (RefTable(Self.StartTime)) DD_Required to True
+        Set Field_Option (RefTable(Self.EndTime)) DD_Required to True
+
+    End_Procedure
+End_Class

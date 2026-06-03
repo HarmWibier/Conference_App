@@ -1,0 +1,238 @@
+﻿Use WebUI\cWebView.pkg
+Use WebUI\cWebPanel.pkg
+Use WebUI\cWebButton.pkg
+Use WebUI\cWebList.pkg
+Use WebUI\cWebColumn.pkg
+Use WebUI\cWebMenuGroup.pkg
+Use WebUI\cWebMenuItem.pkg
+Use WebUI\cWebForm.pkg
+Use WebUI\cWebColumnButton.pkg
+Use WebUI\cWebColumnHighlight.pkg
+Use PresentationDataDictionary.pkg
+Use RoomDataDictionary.pkg
+Use PresenterDataDictionary.pkg
+
+Object oSelectPresentation is a cWebView
+    Object oPresenterDD is a cPresenterDataDictionary
+    End_Object
+    
+    Object oRoomDD is a cRoomDataDictionary
+    End_Object
+
+    Object oPresentationDD is a cPresentationDataDictionary
+        Set DDO_Server to oPresenterDD
+        Set DDO_Server to oRoomDD
+    End_Object
+
+    Set Main_DD to oPresentationDD
+    Set Server to oPresentationDD
+
+    Set peWebViewStyle to wvsDrillDown
+    Set peViewType to vtSelect
+
+    Set psCaption to "Presentations"
+
+    Set piMaxWidth to 1024
+    Set piColumnCount to 6
+    Set pbShowCaption to False
+    Set psStateViewName to "Presentations"
+
+    WebSetResponsive piColumnCount rmTabletPortrait to 3
+
+    Object oList is a cWebList
+        Set pbFillHeight to True
+        Set piColumnSpan to 0
+        Set pbServerOnRowClick to True
+        Set psCSSClass to "MobileList"
+        Set pbShowHeader to False
+        Set peGrouping to grpAutomatic
+        Set peDbGridType to gtAllData
+
+        Object oPresentationDD_Title is a cWebColumnHighlight
+            Set psCaption to "Title"
+            Set psCSSClass to "RowCaption"
+            Set peAlign to alignLeft
+            Set piListColSpan to 4
+            
+            Entry_Item oPresentationDD.Title
+        End_Object
+
+
+        Object oDetailButton is a cWebColumnButton
+            Set piWidth to 45
+            Set pbFixedWidth to True
+            Set psCaption to "btn"
+            Set pbResizable to False
+            Set psBtnCssClass to "WebButtonIcon WebIcon_Info"
+            Set peAlign to alignRight
+            Set piListRowSpan to 3
+
+            WebRegisterPath ntNavigateForward oZoomPresentation
+
+            Procedure OnClick
+                Send NavigatePath
+            End_Procedure
+
+            Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
+                Move True to NavigateData.bReadOnly
+            End_Procedure
+
+        End_Object
+        
+        Object oPresenterDD_Name is a cWebColumn
+            Set psCaption to "Presenter"
+            Entry_Item @SQL"CONCAT(Presenter.FirstName, ' ', Presenter.LastName)" from oPresenterDD
+
+            Set pbNewLine to True
+            Set piListColSpan to 4
+        End_Object
+
+        Object oPresentationDD_Date is a cWebColumn
+            Set psCaption to "Day"
+            Set pbNewLine to True
+            Set psCSSClass to "RowDetail"
+            Entry_Item oPresentationDD.Date
+            Set psMask to "Ddd d Mmmm yyyy"
+            Set pbFixedWidth to True
+            Set piWidth to 120
+        End_Object
+        
+        Object oPresentationDD_StartTime is a cWebColumn
+            Set psCaption to "Start"
+            Set psCSSClass to "RowDetail"
+            Entry_Item oPresentationDD.StartTime
+            Set pbFixedWidth to True
+            Set piWidth to 80
+        End_Object
+        
+        Object oPresentationDD_EndTime is a cWebColumn
+            Set psCaption to "End"
+            Set psCSSClass to "RowDetail"
+            Entry_Item oPresentationDD.EndTime
+
+            Set pbFixedWidth to True
+            Set piWidth to 80
+        End_Object
+        
+        Object oRoom_Name is a cWebColumn
+            Set psCaption to "Room"
+            Set psCSSClass to "RowDetail"
+            
+            Entry_Item oRoomDD.Name
+        End_Object
+        
+        WebRegisterPath ntNavigateForward oZoomPresentation
+        
+        Procedure OnRowClick String sRowID
+
+            tWebNavigateData NavigateData
+            Get GetNavigateData to NavigateData
+            Case Begin
+                Case (NavigateData.eNavigateType=nfFromParent)
+                    Send NavigatePath
+                    Case Break
+                Case (NavigateData.eNavigateType=nfFromChild)
+                    Send NavigateClose Self
+                    Case Break
+                Case (NavigateData.eNavigateType=nfFromMain)
+                    Send NavigateClose Self
+                    Case Break
+                Case Else // must be nfUndefined
+                    Send NavigatePath
+            Case End
+
+        End_Procedure
+
+        Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
+        End_Procedure
+
+        Procedure OnLoad
+            tWebGroupConfig[] aGroups
+            
+            Get piColumnId of oPresentationDD_Date to aGroups[0].iColumnId
+            Get psCaption of oPresentationDD_Date to aGroups[0].sLabel
+            Move False to aGroups[0].bReverse
+            
+            Send ApplyGroupConfig aGroups True
+        End_Procedure
+        
+        Set piSortColumn to (piColumnId(oPresentationDD_StartTime))
+
+    End_Object
+
+
+    Object oActionGroup is a cWebMenuGroup
+        Set psGroupName to "MainActions"
+
+        Object oSearch is a cWebMenuItem
+            Set psCaption to C_$Search
+            Set psCSSClass to "WebPromptMenuItem"
+
+            Procedure OnClick
+                Send Search of oList
+            End_Procedure
+        End_Object
+
+        Object oNewButton is a cWebMenuItem
+            Set psCaption to C_$New
+            Set psCSSClass to "WebClearMenuItem"
+
+            WebRegisterPath ntNavigateForward oZoomPresentation
+
+            Procedure OnClick
+                Send NavigatePath
+            End_Procedure
+
+            Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
+                Move True to NavigateData.bNewRecord
+            End_Procedure
+
+        End_Object
+
+        Object oFindTop is a cWebMenuItem
+            Set psCaption to C_$Top
+            Set peActionDisplay to adMenu
+            Set pbBeginGroup to True
+
+            Procedure OnClick
+                Send MoveToFirstRow of oList
+            End_Procedure
+
+        End_Object
+
+        Object oFindLast is a cWebMenuItem
+            Set psCaption to C_$Bottom
+            Set peActionDisplay to adMenu
+
+            Procedure OnClick
+                Send MoveToLastRow of oList
+            End_Procedure
+
+        End_Object
+    End_Object
+
+    Procedure OnNavigateForward tWebNavigateData NavigateData Integer hoInvokingView Integer hoInvokingObject
+
+        Case Begin
+            Case (NavigateData.eNavigateType=nfFromParent)
+                If (NavigateData.iTable = RefEntity(Presenter)) Begin
+                    Send SetBreadcrumbCaption (SFormat("Presentations from %1", oPresenterDD.FirstName * oPresenterDD.LastName))
+                End
+                Else If (NavigateData.iTable = RefEntity(Room)) Begin
+                   Send SetBreadcrumbCaption (SFormat("Presentations in %1", oRoomDD.Name)) 
+                End
+                Case Break
+
+            Case (NavigateData.eNavigateType=nfFromChild)
+                Case Break
+
+            Case (NavigateData.eNavigateType=nfFromMain)
+                Case Break
+
+            Case Else // must be nfUndefined
+
+        Case End
+
+    End_Procedure
+
+End_Object
